@@ -17,6 +17,25 @@
 #include "canvas.hpp"
 #include "shader.hpp"
 
+void init_imgui(SDL_Window* window, SDL_GLContext context)
+{
+    ImGui::CreateContext();
+    //ImGuiIO& io = ImGui::GetIO();
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
+    // Setup Platform/Renderer backends
+    ImGui_ImplSDL2_InitForOpenGL(window, context);
+    ImGui_ImplOpenGL3_Init("#version 330 core");
+}
+
+void imgui_prepare_frame()
+{
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplSDL2_NewFrame();
+    ImGui::NewFrame();
+}
+
+
 int main(int argc, char** argv)
 {
     SDL_Init(SDL_INIT_VIDEO);
@@ -48,13 +67,8 @@ int main(int argc, char** argv)
 
     glEnable(GL_DEPTH_TEST); // So triangles don't "overlap"
 
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-    // Setup Dear ImGui style
-    ImGui::StyleColorsDark();
-    // Setup Platform/Renderer backends
-    ImGui_ImplSDL2_InitForOpenGL(window, context);
-    ImGui_ImplOpenGL3_Init("#version 330 core");
+    // Init ImGui
+    init_imgui(window, context);
 
     bool quit = false;
     Uint32 time_delta = SDL_GetTicks();
@@ -70,10 +84,7 @@ int main(int argc, char** argv)
         glClearColor(1, 1, 0, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplSDL2_NewFrame();
-        ImGui::NewFrame();
-
+        imgui_prepare_frame();
 
         ImGui::Begin("Debug Info");
         ImGui::Text("FPS: %.1f", 1.0f/((SDL_GetTicks()-time_delta)/1000.0f));

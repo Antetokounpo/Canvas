@@ -27,6 +27,8 @@ class Shader
         void add_uniform_location(const std::string& uniform_variable);
         void init_uniform_vars();
 
+        std::string prepend_shadertoy_code(std::string fragment_code);
+
         std::map<std::string, GLuint> uniform_var_dict;
         GLuint shader_program;
 };

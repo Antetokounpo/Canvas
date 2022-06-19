@@ -65,13 +65,20 @@ void Shader::init_uniform_vars()
     add_uniform_location("iTime");
 }
 
+std::string Shader::prepend_shadertoy_code(std::string shader_code)
+{
+    std::string header_code = "#version 330 core\nuniform vec2 iResolution;\nuniform float iTime;\n";
+    std::string footer_code = "void main()\n{\nmainImage(gl_FragColor, gl_FragCoord.xy);\n}";
+    return header_code+shader_code+footer_code;
+}
+
 void Shader::load(const std::string& vertex_shader_file, const std::string& fragment_shader_file)
 {
     GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
     GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
 
     compile_shader(read_file(vertex_shader_file), vertex_shader);
-    compile_shader(read_file(fragment_shader_file), fragment_shader);
+    compile_shader(prepend_shadertoy_code(read_file(fragment_shader_file)), fragment_shader);
 
     glAttachShader(shader_program, vertex_shader);
     glAttachShader(shader_program, fragment_shader);
