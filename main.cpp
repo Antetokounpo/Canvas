@@ -1,11 +1,19 @@
+/* STL includes */
 #include<iostream>
 #include<vector>
 
+/* SDL/OpenGL/GLM includes */
 #include<SDL2/SDL.h>
 #include<SDL2/SDL_image.h>
 #include<GL/glew.h>
 #include<glm/gtc/matrix_transform.hpp>
 
+/* ImGui includes */
+#include<imgui/imgui.h>
+#include<imgui/imgui_impl_sdl.h>
+#include<imgui/imgui_impl_opengl3.h>
+
+/* Canvas includes */
 #include "canvas.hpp"
 #include "shader.hpp"
 
@@ -40,17 +48,38 @@ int main(int argc, char** argv)
 
     glEnable(GL_DEPTH_TEST); // So triangles don't "overlap"
 
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
+    // Setup Platform/Renderer backends
+    ImGui_ImplSDL2_InitForOpenGL(window, context);
+    ImGui_ImplOpenGL3_Init("#version 330 core");
+
     bool quit = false;
+    Uint32 time_delta = SDL_GetTicks();
     while(!quit)
     {
         SDL_Event e;
         while(SDL_PollEvent(&e))
         {
+            ImGui_ImplSDL2_ProcessEvent(&e);
             if(e.type == SDL_QUIT)
                 quit = true;
         }
         glClearColor(1, 1, 0, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplSDL2_NewFrame();
+        ImGui::NewFrame();
+
+
+        ImGui::Begin("Debug Info");
+        ImGui::Text("FPS: %.1f", 1.0f/((SDL_GetTicks()-time_delta)/1000.0f));
+        time_delta = SDL_GetTicks();
+
+        ImGui::End();
 
         shader.start();
 
@@ -61,8 +90,16 @@ int main(int argc, char** argv)
 
         shader.stop();
 
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         SDL_GL_SwapWindow(window);
     }
+
+    // Cleanup
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplSDL2_Shutdown();
+    ImGui::DestroyContext();
 
     SDL_GL_DeleteContext(context);
     SDL_DestroyWindow(window);

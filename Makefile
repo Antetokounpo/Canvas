@@ -6,8 +6,9 @@ LDFLAGS  := -lSDL2 -lSDL2_image
 BUILD    := ./build
 OBJ_DIR  := $(BUILD)/objects
 TARGET   := canvas
-INCLUDE  := -I./
-SRC      := $(wildcard ./*.cpp)
+INCLUDE  := -I./ -Ilib
+SRC      := $(wildcard lib/imgui/*.cpp) \
+			$(wildcard ./*.cpp)
 
 OBJECTS  := $(SRC:%.cpp=$(OBJ_DIR)/%.o)
 
