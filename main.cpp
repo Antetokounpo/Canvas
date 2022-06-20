@@ -97,8 +97,8 @@ int main(int argc, char** argv)
         ImGui::Begin("Params");
         for(int i = 0; i<parameters.size(); ++i)
         {
-            static float min_value;
-            static float max_value;
+            static float min_value = 0;
+            static float max_value = 100;
             if(ImGui::CollapsingHeader("Min/Max"))
             {
                 ImGui::InputFloat("Min", &min_value);
