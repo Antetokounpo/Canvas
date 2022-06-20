@@ -9,6 +9,8 @@
 #include<GL/glew.h>
 #include<glm/glm.hpp>
 
+#include<boost/algorithm/string.hpp>
+
 Shader::Shader()
 {
     shader_program = glCreateProgram();
@@ -63,12 +65,50 @@ void Shader::init_uniform_vars()
 {
     add_uniform_location("iResolution");
     add_uniform_location("iTime");
+
+    for(const std::string& s: uniform_vars)
+        add_uniform_location(s);
+}
+
+const std::vector<std::string>& Shader::get_uniform_vars()
+{
+    return uniform_vars;
+}
+
+void Shader::set_uniform_vars(const std::vector<std::string>& vars)
+{
+    uniform_vars = vars;
+}
+
+std::vector<std::string> Shader::get_uniform_vars_from_shader(const std::string& shader_filename)
+{
+    std::ifstream t(shader_filename);
+    std::string buf;
+
+    std::vector<std::string> vars = {};
+    if(t.is_open())
+    {
+        while(std::getline(t, buf, ';'))
+        {
+            boost::trim(buf);
+            if(boost::algorithm::starts_with(buf, "uniform"))
+            {
+                std::vector<std::string> parts;
+                boost::algorithm::split(parts, buf, boost::is_any_of(" "));
+
+                vars.push_back(parts[2]);
+            }
+        }
+    }
+
+    return vars;
 }
 
 std::string Shader::prepend_shadertoy_code(std::string shader_code)
 {
     std::string header_code = "#version 330 core\nuniform vec2 iResolution;\nuniform float iTime;\n";
     std::string footer_code = "void main()\n{\nmainImage(gl_FragColor, gl_FragCoord.xy);\n}";
+
     return header_code+shader_code+footer_code;
 }
 

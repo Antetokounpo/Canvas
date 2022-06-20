@@ -53,13 +53,15 @@ int main(int argc, char** argv)
         std::cout << glewGetErrorString(err) << std::endl;
         return -1;
     }
-
     std::cout << glGetString(GL_VERSION) << std::endl;
-
     IMG_Init(IMG_INIT_PNG | IMG_INIT_PNG);
 
     Shader shader;
-    shader.load("shaders/vertex_shader.glsl", (argc > 1) ? argv[1] : "shaders/fragment_shader.glsl");
+    const std::string shader_filename = (argc > 1) ? argv[1] : "shaders/fragment_shader.glsl";
+    const std::vector<std::string> parameters = Shader::get_uniform_vars_from_shader(shader_filename);
+    std::vector<float> values(parameters.size());
+    shader.set_uniform_vars(parameters);
+    shader.load("shaders/vertex_shader.glsl", shader_filename);
     Canvas canvas;
 
     SDL_GL_SetSwapInterval(1);
@@ -89,7 +91,21 @@ int main(int argc, char** argv)
         ImGui::Begin("Debug Info");
         ImGui::Text("FPS: %.1f", 1.0f/((SDL_GetTicks()-time_delta)/1000.0f));
         time_delta = SDL_GetTicks();
+        ImGui::Text("Time: %.1f", SDL_GetTicks()/1000.0f);
+        ImGui::End();
 
+        ImGui::Begin("Params");
+        for(int i = 0; i<parameters.size(); ++i)
+        {
+            static float min_value;
+            static float max_value;
+            if(ImGui::CollapsingHeader("Min/Max"))
+            {
+                ImGui::InputFloat("Min", &min_value);
+                ImGui::InputFloat("Max", &max_value);
+            }
+            ImGui::SliderFloat(parameters[i].c_str(), &values[i], min_value, max_value, nullptr, 1);
+        }
         ImGui::End();
 
         shader.start();
@@ -97,10 +113,14 @@ int main(int argc, char** argv)
         shader.set_uniform_variable(glm::vec2(1280, 720), "iResolution");
         shader.set_uniform_variable(SDL_GetTicks()/1000.0f, "iTime");
 
+        for(int i = 0; i<parameters.size(); ++i)
+        {
+            shader.set_uniform_variable(values[i], parameters[i]);
+        }
+
         canvas.render();
 
         shader.stop();
-
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

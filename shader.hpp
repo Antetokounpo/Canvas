@@ -2,6 +2,7 @@
 
 #include<string>
 #include<map>
+#include<vector>
 
 #include<GL/glew.h>
 #include<glm/glm.hpp>
@@ -21,6 +22,10 @@ class Shader
         void set_uniform_variable(const glm::vec3& v, const std::string& uniform_varible);
         void set_uniform_variable(const glm::vec2& v, const std::string& uniform_varible);
         void set_uniform_variable(const glm::mat4& v, const std::string& uniform_varible);
+
+        static std::vector<std::string> get_uniform_vars_from_shader(const std::string& shader_filename);
+        const std::vector<std::string>& get_uniform_vars();
+        void set_uniform_vars(const std::vector<std::string>& vars);
     private:
         std::string read_file(const std::string& filename);
         void compile_shader(const std::string& source, GLuint shader_id);
@@ -30,5 +35,6 @@ class Shader
         std::string prepend_shadertoy_code(std::string fragment_code);
 
         std::map<std::string, GLuint> uniform_var_dict;
+        std::vector<std::string> uniform_vars;
         GLuint shader_program;
 };
