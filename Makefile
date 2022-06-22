@@ -2,7 +2,7 @@
 
 CXX      := g++
 CXXFLAGS := -Wall -std=c++17
-LDFLAGS  := -lSDL2 -lSDL2_image
+LDFLAGS  := -lSDL2
 BUILD    := ./build
 OBJ_DIR  := $(BUILD)/objects
 TARGET   := canvas

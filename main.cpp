@@ -4,7 +4,6 @@
 
 /* SDL/OpenGL/GLM includes */
 #include<SDL2/SDL.h>
-#include<SDL2/SDL_image.h>
 #include<GL/glew.h>
 #include<glm/gtc/matrix_transform.hpp>
 
@@ -54,7 +53,6 @@ int main(int argc, char** argv)
         return -1;
     }
     std::cout << glGetString(GL_VERSION) << std::endl;
-    IMG_Init(IMG_INIT_PNG | IMG_INIT_PNG);
 
     Shader shader;
     const std::string shader_filename = (argc > 1) ? argv[1] : "shaders/fragment_shader.glsl";
