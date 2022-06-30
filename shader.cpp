@@ -83,19 +83,26 @@ void Shader::set_uniform_vars(const std::vector<std::string>& vars)
 std::vector<std::string> Shader::get_uniform_vars_from_shader(const std::string& shader_filename)
 {
     std::ifstream t(shader_filename);
-    std::string buf;
+    std::stringstream buffer;
 
     std::vector<std::string> vars = {};
     if(t.is_open())
     {
-        while(std::getline(t, buf, ';'))
+        buffer << t.rdbuf();
+
+        std::vector<std::string> statements;
+        // Split on return or on ; to get all the statements in the source file (\n and not just ; to avoid errors with #defines)
+        boost::algorithm::split(statements, buffer.str(), boost::is_any_of(";\n"));
+        for(auto buf: statements)
         {
-            boost::trim(buf);
+            boost::trim(buf); // remove any whitespaces on the edges to ensure the string is parsable
             if(boost::algorithm::starts_with(buf, "uniform"))
             {
                 std::vector<std::string> parts;
+                // split "uniform float v" -> ["uniform", "float", "v"]
                 boost::algorithm::split(parts, buf, boost::is_any_of(" "));
 
+                // push the var name into the vector
                 vars.push_back(parts[2]);
             }
         }
